@@ -1,8 +1,12 @@
 import { NestFactory } from '@nestjs/core';
+
+import { SofaServer } from './modules/sofa/sofa.server';
 import { ApplicationModule } from './app.module';
 
-async function bootstrap() {
-	const app = await NestFactory.create(ApplicationModule);
-	await app.listen(3000);
-}
-bootstrap();
+(async () => {
+  const app = await NestFactory.createMicroservice(ApplicationModule, {
+    strategy: new SofaServer(),
+  });
+
+  app.listen(null);
+})();
