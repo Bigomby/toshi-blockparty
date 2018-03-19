@@ -29,6 +29,7 @@ function bnToBuffer(bn, len: number) {
 
 function getPriv(keypair, digest) {
   const priv = secp256k1.keyFromPrivate(digest.slice(0, 32)).getPrivate();
+
   return priv.add(keypair.getPrivate()).mod(secp256k1.curve.n);
 }
 
@@ -58,19 +59,6 @@ function nextKeypair(previous, { element }) {
 
   return {
     keypair: secp256k1.keyFromPrivate(bnToBuffer(priv, 32)),
-    chaincode: digest.slice(32),
-  };
-}
-
-function createRootKeypair(mnemonic: string) {
-  const seed = bip39.mnemonicToSeedHex(mnemonic);
-  const hmac = hash.hmac(hash.sha512, SEED);
-
-  hmac.update(seed, 'hex');
-  const digest = hmac.digest();
-
-  return {
-    keypair: secp256k1.keyFromPrivate(digest.slice(0, 32)),
     chaincode: digest.slice(32),
   };
 }
@@ -118,6 +106,7 @@ export class PrivateKey {
   get address(): string {
     const pub = this.keypair.getPublic().encode('', false);
     const address = keccak256.array(pub.slice(1)).slice(12, 32);
+
     return `0x${hash.utils.toHex(address)}`;
   }
 }
