@@ -15,6 +15,17 @@ export class ClientController {
     private readonly clientService: ClientService,
   ) {}
 
+  @MessagePattern({ type: 'Init' })
+  public init(msg: MessageDto) {
+    this.logger.log(`New session created for ${msg.sender}`);
+    this.sessionService.createSession(msg.sender, msg.content);
+  }
+
+  @MessagePattern({ type: 'InitRequest' })
+  public initRequest(msg: MessageDto) {
+    this.logger.warn(`Unimplemented: InitRequest`);
+  }
+
   @MessagePattern({ type: 'Message' })
   public message(msg: MessageDto) {
     const session = this.sessionService.getSession(msg.sender);
@@ -32,14 +43,8 @@ export class ClientController {
     this.clientService.sendMessage(msg.sender, msg.content.body);
   }
 
-  @MessagePattern({ type: 'Init' })
-  public init(msg: MessageDto) {
-    this.logger.log(`New session created for ${msg.sender}`);
-    this.sessionService.createSession(msg.sender, msg.content);
-  }
-
-  @MessagePattern({ type: 'InitRequest' })
-  public initRequest(msg: MessageDto) {
-    this.logger.warn(`Unimplemented: InitRequest`);
+  @MessagePattern({ type: 'Payment' })
+  public payment(msg: MessageDto) {
+    this.logger.warn(`Unimplemented: Payment`);
   }
 }
