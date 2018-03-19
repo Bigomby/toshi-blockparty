@@ -8,6 +8,7 @@ const MESSAGE_EVENT = 'message';
 const ERROR_EVENT = 'error';
 const CONNECT_EVENT = 'connect';
 const PAYMENT_TYPE = 'payment';
+const ID_KEY = Config.TOKEN.IDENTITY_KEY.address;
 
 export class SofaServer extends Server implements CustomTransportStrategy {
   private subscriber: RedisClient;
@@ -26,7 +27,7 @@ export class SofaServer extends Server implements CustomTransportStrategy {
 
   private handleConnection(callback: () => void, subscriber: RedisClient) {
     subscriber.on(MESSAGE_EVENT, this.handleMessage.bind(this));
-    subscriber.subscribe(Config.TOKEN.ID_ADDRESS);
+    subscriber.subscribe(ID_KEY);
     callback && callback();
   }
 
@@ -35,19 +36,14 @@ export class SofaServer extends Server implements CustomTransportStrategy {
 
     try {
       const { sofa, sender, recipient } = JSON.parse(data);
-      if (recipient !== Config.TOKEN.ID_ADDRESS) return;
+      if (recipient !== ID_KEY) return;
 
       const msg = SOFA.parse(sofa);
-      if (!msg || !msg.type) return;
-
-      if (msg.type === PAYMENT_TYPE) {
-        this.logger.warn(`Ignoring "SOFA:Payment" message from chat \
-          message: expecting Ethereum Service Notification soon`);
-        return;
-      }
+      if (!msg) throw Error('Cannot parse sofa message');
 
       const pattern = JSON.stringify({ type: msg.type });
       const handler = this.messageHandlers[pattern];
+
       handler && handler({ content: msg.content, sender });
     } catch (e) {
       this.logger.error(e);
@@ -57,6 +53,8 @@ export class SofaServer extends Server implements CustomTransportStrategy {
   private createRedisClient(): RedisClient {
     const client = CreateRedisClient(Config.REDIS.URI);
     client.on(ERROR_EVENT, err => this.logger.error(err));
+    this.logger.log(`Listening for messages to: ${ID_KEY}`);
+
     return client;
   }
 }
