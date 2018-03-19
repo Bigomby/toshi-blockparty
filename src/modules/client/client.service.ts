@@ -4,7 +4,7 @@ import { SOFAClient } from '../sofa/sofa.client';
 
 @Component()
 export class ClientService {
-  private sofaClient: SOFAClient = new SOFAClient();
+  private readonly sofaClient = new SOFAClient();
 
   public sendMessage(address: string, msg: string) {
     this.sofaClient.send(address, msg).toPromise();
