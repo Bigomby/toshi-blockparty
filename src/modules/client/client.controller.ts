@@ -5,6 +5,7 @@ import { Logger } from '@nestjs/common/services/logger.service';
 import { SessionService } from '../session/session.service';
 import { ClientService } from './client.service';
 import { MessageDto } from './dtos/message.dto';
+import { EthService } from '../eth/eth.service';
 
 @Controller()
 export class ClientController {
@@ -13,6 +14,7 @@ export class ClientController {
   constructor(
     private readonly sessionService: SessionService,
     private readonly clientService: ClientService,
+    private readonly ethService: EthService,
   ) {}
 
   @MessagePattern({ type: 'Init' })
@@ -27,7 +29,7 @@ export class ClientController {
   }
 
   @MessagePattern({ type: 'Message' })
-  public message(msg: MessageDto) {
+  public async message(msg: MessageDto) {
     const session = this.sessionService.getSession(msg.sender);
     if (!session) {
       this.logger.warn(`Ignoring message. No session found for ${msg.sender}`);
@@ -40,7 +42,8 @@ export class ClientController {
       return;
     }
 
-    this.clientService.sendMessage(msg.sender, msg.content.body);
+    const balance = await this.ethService.getBalance(paymentAddress);
+    this.clientService.sendMessage(msg.sender, `You have ${balance} ETH`);
   }
 
   @MessagePattern({ type: 'Payment' })

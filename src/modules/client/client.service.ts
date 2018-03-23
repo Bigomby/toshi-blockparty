@@ -1,6 +1,6 @@
 import { Component } from '@nestjs/common';
 
-import { SOFAClient } from '../sofa/sofa.client';
+import { SOFAClient } from '../../clients/sofa.client';
 
 @Component()
 export class ClientService {
