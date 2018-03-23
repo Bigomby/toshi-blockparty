@@ -1,12 +1,20 @@
 import { NestFactory } from '@nestjs/core';
 
-import { SofaServer } from './modules/sofa/sofa.server';
+import { SofaServer } from './servers/sofa.server';
+import { WSServer } from './servers/ws.server';
 import { ApplicationModule } from './app.module';
+import { JSONRPC } from './utils/json-rpc';
 
 (async () => {
-  const app = await NestFactory.createMicroservice(ApplicationModule, {
+  const app = await NestFactory.create(ApplicationModule);
+
+  app.connectMicroservice({
     strategy: new SofaServer(),
   });
+  app.connectMicroservice({
+    strategy: new WSServer(JSONRPC.connection),
+  });
 
-  app.listen(null);
+  app.startAllMicroservicesAsync();
+  JSONRPC.connection.init();
 })();
