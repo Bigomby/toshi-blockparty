@@ -6,6 +6,9 @@ const envVarsSchema = joi
   .object({
     REDIS_URL: joi.string().default('redis://localhost:6379'),
     TOSHI_APP_SEED: joi.string().required(),
+    PAYMENT_SERVICE_URL: joi
+      .string()
+      .default('https://ethereum.development.service.toshi.org'),
   })
   .unknown()
   .required();
@@ -28,5 +31,9 @@ export class Config {
   public static TOKEN = {
     IDENTITY_KEY: rootKey.deriveFromPath("m/0'/1/0"),
     PAYMENT_KEY: rootKey.deriveFromPath("m/44'/60'/0'/0/0"),
+  };
+
+  public static PAYMENT_SERVICE = {
+    URL: value.PAYMENT_SERVICE_URL,
   };
 }
