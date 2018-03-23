@@ -2,13 +2,14 @@ import { Server, CustomTransportStrategy } from '@nestjs/microservices';
 import { RedisClient, createClient as CreateRedisClient } from 'redis';
 import * as SOFA from 'sofa-js';
 
-import { Config } from '../../config';
+import { Config } from '../config';
 
 const MESSAGE_EVENT = 'message';
 const ERROR_EVENT = 'error';
 const CONNECT_EVENT = 'connect';
 const PAYMENT_TYPE = 'payment';
 const ID_KEY = Config.TOKEN.IDENTITY_KEY.address;
+const REDIS_URI = Config.REDIS.URI;
 
 export class SofaServer extends Server implements CustomTransportStrategy {
   private subscriber: RedisClient;
@@ -51,7 +52,7 @@ export class SofaServer extends Server implements CustomTransportStrategy {
   }
 
   private createRedisClient(): RedisClient {
-    const client = CreateRedisClient(Config.REDIS.URI);
+    const client = CreateRedisClient(REDIS_URI);
     client.on(ERROR_EVENT, err => this.logger.error(err));
     this.logger.log(`Listening for messages to: ${ID_KEY}`);
 

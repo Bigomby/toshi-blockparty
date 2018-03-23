@@ -2,7 +2,7 @@ import { ClientProxy } from '@nestjs/microservices';
 import { RedisClient, createClient as CreateRedisClient } from 'redis';
 import * as SOFA from 'sofa-js';
 
-import { Config } from '../../config';
+import { Config } from '../config';
 
 const ID_KEY = Config.TOKEN.IDENTITY_KEY.address;
 
